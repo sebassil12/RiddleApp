@@ -1,39 +1,36 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, View} from "react-native";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const[initializing, setInitializing] = useState<boolean>(true);
+  const[user, setUser] = useState<FirebaseAuthTypes.User | null>();
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
+  const onAuthStateChanged = (user:FirebaseAuthTypes.User | null) =>{
+    console.log('onAuthStateChanged', user);
+    setUser(user);
+    if(initializing) setInitializing(false);
   }
+  useEffect(() =>{
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber;
+  },[]);
 
+  if (initializing){
+    return(
+      <View 
+      style={{
+        alignItems: 'center',
+        justifyContent:'center',
+        flex:1
+      }}>
+      <ActivityIndicator size="large" />
+      </View>
+    )
+  }
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+    <>
+    </>
+  )
 }
