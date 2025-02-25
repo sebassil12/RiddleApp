@@ -1,7 +1,6 @@
 import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View} from "react-native";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function RootLayout() {
   const[initializing, setInitializing] = useState<boolean>(true);
